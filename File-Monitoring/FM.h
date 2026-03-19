@@ -8,33 +8,41 @@
 class FileManager {
 public:
     FileManager();
-    FileManager(QString name);
+    FileManager(const QString &name);
 
     //getters
-    QString name();
-    bool exist();
-    int size();
+    QString name() const;
+    bool exist() const;
+    int size() const;
 
     //setters
+    void setName(const QString &name);
 
-
-    //
-    void refresh();
-
+    //проверка на изменения файла
     bool hadChanged();
+
+private:
+    //обновление состояния файла
+    void refresh();
 
 private:
     QString m_name;
     bool m_exist;
     int m_size;
 
+    QFileInfo m_fileInfo;
 };
 
 // класс, выводящий изменения всех наблюдаемых файлов
 class FileManagerSystem{
 public:
+    FileManagerSystem();
+    ~FileManagerSystem();
+
+
 
 private:
+    QList<FileManager> m_files;
 
 };
 
