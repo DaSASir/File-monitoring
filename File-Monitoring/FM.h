@@ -2,50 +2,29 @@
 #define FM_H
 
 #include <QFileInfo>
-#include <QString>
 
-//класс, отвечающий за наблюдение за одним файлом
 class FileManager {
 public:
     FileManager();
-    FileManager(const QString &name);
+    ~FileManager();
 
-    //getters
-    QString name() const;
-    bool exist() const;
-    int size() const;
+    void addFile(const QString &name);
+    void removeFile(const QString &name);
+    void clear();
 
-    //setters
-    void setName(const QString &name);
+    void start(int interval = 100);
+    void stop();
 
-    //проверка на изменения файла
-    bool hadChanged();
-
-private:
-    //обновление состояния файла
-    void refresh();
+    int count() const;
+    void print() const;
 
 private:
-    QString m_name;
-    bool m_exist;
-    int m_size;
-
-    QFileInfo m_fileInfo;
-};
-
-// класс, выводящий изменения всех наблюдаемых файлов
-class FileManagerSystem{
-public:
-    FileManagerSystem();
-    ~FileManagerSystem();
-
-
+    bool inStock(const QString &name);
 
 private:
-    QList<FileManager> m_files;
+    QList<QFileInfo> m_files;
+    bool m_flag;
 
 };
-
-
 
 #endif // FM_H

@@ -1,57 +1,90 @@
 #include "FM.h"
 #include <QTextStream>
+#include <QDebug>
+#include <thread>
 
-//FileManager
 FileManager::FileManager()
-    : m_name(""), m_exist(false), m_size(0)
-{}
+    : m_flag(false) {}
 
-FileManager::FileManager(const QString &name)
-    : m_name(name), m_exist(false), m_size(0), m_fileInfo(name)
-{
-    refresh();
+FileManager::~FileManager(){
+    clear();
 }
 
-QString FileManager::name() const{
-    return m_name;
+void FileManager::addFile(const QString &name){
+    if (inStock(name))
+        return;
+
+    m_files.append(QFileInfo(name));
 }
 
-bool FileManager::exist() const{
-    return m_exist;
+void FileManager::removeFile(const QString &name){
+    if (!inStock(name))
+        return;
+
+    for (int i = 0; i < m_files.size(); ++i) {
+        if (m_files[i].filePath() == name) {
+            m_files.removeAt(i);
+            return;
+        }
+    }
 }
 
-int FileManager::size() const{
-    return m_size;
+void FileManager::clear(){
+    if (m_flag) stop();
+
+    m_files.clear();
 }
 
-void FileManager::setName(const QString &name){
-    m_name = name;
-    m_fileInfo.setFile(name);
-    refresh();
+void FileManager::start(int interval){
+    if (m_files.isEmpty() || m_flag) return;
+
+    m_flag = true;
+
+    qDebug() << "СТАРТ, интервал:" << interval;
+
+    QList<int> oldSizes;
+    for (int i = 0; i < m_files.size(); ++i) {
+        m_files[i].refresh();
+        oldSizes.append(m_files[i].exists() ? m_files[i].size() : -1);
+    }
+
+    while (m_flag) {
+        for (int i = 0; i < m_files.size(); ++i) {
+            m_files[i].refresh();
+
+            int newSize = m_files[i].exists() ? m_files[i].size() : -1;
+
+            if (newSize != oldSizes[i]) {
+                qDebug() << "ИЗМЕНЕНИЕ:" << m_files[i].filePath() << " размер:" << oldSizes[i] << "->" << newSize;
+                oldSizes[i] = newSize;
+            }
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+    }
 }
 
-void FileManager::refresh(){
-    m_fileInfo.refresh();
-    m_exist = m_fileInfo.exists();
-
-    m_size = m_exist ? m_fileInfo.size() : 0;
+void FileManager::stop(){
+    if (m_flag) {
+        m_flag = false;
+        qDebug() << "ФИНИШ";
+    }
 }
 
-bool FileManager::hadChanged(){
-    bool oldExist = m_exist;
-    int oldSize = m_size;
+int FileManager::count() const{
+    return m_files.size();
+}
 
-    refresh();
+void FileManager::print() const{
+    for (int i = 0; i < m_files.size(); ++i) {
+        qDebug() << m_files[i];
+    }
+}
 
-    if (m_exist != oldExist)
-        return true;
-
-    if (m_exist && m_size != oldSize)
-        return true;
+bool FileManager::inStock(const QString &name){
+    for (int i = 0; i < m_files.size(); ++i)
+        if (m_files[i].filePath() == name)
+            return true;
 
     return false;
 }
-
-//FileManagerSystem
-
-
