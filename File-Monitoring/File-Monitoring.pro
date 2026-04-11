@@ -19,3 +19,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     FM.h \
     observer.h
+
+DISTFILES +=

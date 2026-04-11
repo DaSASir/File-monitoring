@@ -1,10 +1,13 @@
 #ifndef FM_H
 #define FM_H
 
+#include <QObject>
 #include <QFileInfo>
 #include "observer.h"
 
-class FileManager {
+class FileManager : public QObject {
+    Q_OBJECT
+
 public:
     FileManager();
     ~FileManager();
@@ -14,14 +17,15 @@ public:
     void clear();
 
     void start(int interval = 100);
-    void stop();
 
     int count() const;
-    void print() const;
 
     void attach(IObserver *observer);
     void detach(IObserver *observer);
     void notify(const QFileInfo &info);
+
+signals:
+    void fileChanged(const QFileInfo &info);
 
 private:
     bool inStock(const QString &name);
@@ -31,7 +35,6 @@ private:
 private:
     QList<QFileInfo> m_files;
     QList<IObserver*> m_observers;
-    bool m_flag = false;
 };
 
 #endif // FM_H

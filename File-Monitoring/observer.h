@@ -1,15 +1,20 @@
 #ifndef OBSERVER_H
 #define OBSERVER_H
 
+#include <QObject>
 #include <QFileInfo>
 
-class IObserver {
-public:
+class IObserver : public QObject {
+    Q_OBJECT
+
+public slots:
     virtual void update(const QFileInfo &info) = 0;
 };
 
 class ConsoleObserver : public IObserver {
-public:
+    Q_OBJECT
+
+public slots:
     void update(const QFileInfo &info) override;
 };
 

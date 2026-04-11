@@ -2,26 +2,26 @@
 #include <QDebug>
 #include <thread>
 
-FileManager::FileManager()
-    : m_flag(false) {}
+FileManager::FileManager() : QObject() {}
 
 FileManager::~FileManager() {
     clear();
 }
 
 void FileManager::attach(IObserver *observer) {
-    if (observer && !m_observers.contains(observer))
+    if (observer && !m_observers.contains(observer)) {
         m_observers.append(observer);
+        connect(this, &FileManager::fileChanged, observer, &IObserver::update);
+    }
 }
 
 void FileManager::detach(IObserver *observer) {
+    disconnect(this, &FileManager::fileChanged, observer, &IObserver::update);
     m_observers.removeOne(observer);
 }
 
 void FileManager::notify(const QFileInfo &info) {
-    for (IObserver *obs : m_observers) {
-        obs->update(info);
-    }
+    emit fileChanged(info);
 }
 
 void FileManager::addFile(const QString &name) {
@@ -48,15 +48,12 @@ void FileManager::removeFile(const QString &name) {
 }
 
 void FileManager::clear() {
-    if (m_flag)
-        stop();
     m_files.clear();
 }
 
 void FileManager::start(int interval) {
-    if (m_files.isEmpty() || m_flag) return;
+    if (m_files.isEmpty()) return;
 
-    m_flag = true;
     qDebug() << "\nSTART";
 
     QList<int> oldSizes;
@@ -68,7 +65,7 @@ void FileManager::start(int interval) {
     for (int i = 0; i < m_files.size(); ++i)
         notify(m_files[i]);
 
-    while (m_flag) {
+    while (true) {
         for (int i = 0; i < m_files.size(); ++i) {
             m_files[i].refresh();
 
@@ -83,21 +80,8 @@ void FileManager::start(int interval) {
     }
 }
 
-void FileManager::stop() {
-    if (m_flag) {
-        m_flag = false;
-        qDebug() << "FINISH";
-    }
-}
-
 int FileManager::count() const {
     return m_files.size();
-}
-
-void FileManager::print() const {
-    for (int i = 0; i < m_files.size(); ++i) {
-        qDebug() << m_files[i].fileName();
-    }
 }
 
 bool FileManager::inStock(const QString &name) {
