@@ -20,6 +20,7 @@
 Валидация путей - проверка корректности имен файлов
 
 # UML-диаграмма классов
+<img width="910" height="894" alt="image" src="https://github.com/user-attachments/assets/17ddb55b-932f-49d1-85a0-9c0805cf02f9" />
 
 # Основные компоненты UML-диаграммы классов
 ## IObserver (интерфейс наблюдателя)
