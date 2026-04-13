@@ -7,7 +7,7 @@ void ConsoleObserver::update(const QFileInfo &info) {
         qDebug() << "status: NOT exist";
     } else {
         qDebug() << "status: exist";
-        qDebug() << "size:" << info.size() << "bytes";
+        qDebug() << "size:" << info.size();
         if (info.size() == 0) {
             qDebug() << "warning: file is empty!";
         }

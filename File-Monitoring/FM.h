@@ -34,7 +34,7 @@ private:
 
 private:
     QList<QFileInfo> m_files;
-    QList<IObserver*> m_observers;
+
 };
 
 #endif // FM_H

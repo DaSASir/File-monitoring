@@ -9,15 +9,12 @@ FileManager::~FileManager() {
 }
 
 void FileManager::attach(IObserver *observer) {
-    if (observer && !m_observers.contains(observer)) {
-        m_observers.append(observer);
+    if (observer)
         connect(this, &FileManager::fileChanged, observer, &IObserver::update);
-    }
 }
 
 void FileManager::detach(IObserver *observer) {
     disconnect(this, &FileManager::fileChanged, observer, &IObserver::update);
-    m_observers.removeOne(observer);
 }
 
 void FileManager::notify(const QFileInfo &info) {
@@ -53,8 +50,6 @@ void FileManager::clear() {
 
 void FileManager::start(int interval) {
     if (m_files.isEmpty()) return;
-
-    qDebug() << "\nSTART";
 
     QList<int> oldSizes;
     for (int i = 0; i < m_files.size(); ++i) {
